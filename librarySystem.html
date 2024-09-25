@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/librarySystem.css">
+    <title>Library Management System</title>
+</head>
+<body>
+
+<div class="header">
+    <h1>Library Management System</h1>
+</div>
+
+<!-- Search Box -->
+<div class="search-container">
+    <input type="text" id="search-book" placeholder="Search for Books by Title or Author..." oninput="searchBooks()" />
+</div>
+
+<!-- Main Container for Forms -->
+<div class="container">
+
+    <div class="column">
+        <h2>Available Books</h2>
+        <ul id="book-list"></ul> <!-- List of available books -->
+    </div>
+
+    <div class="column signup-form">
+        <h2>Add New Book</h2>
+        <form id="addBookForm" onsubmit="addBook(event)">
+            <label for="new-book-title">Book Title:</label>
+            <input type="text" id="new-book-title" name="new-book-title" required />
+            
+            <label for="new-book-author">Author:</label>
+            <input type="text" id="new-book-author" name="new-book-author" required />
+            
+            <button type="submit">Add Book</button>
+        </form>
+    </div>
+
+    <div class="column delete-form">
+        <h2>Delete Book</h2>
+        <form id="deleteBookForm" onsubmit="deleteBook(event)">
+            <label for="delete-book-id">Book ID:</label>
+            <input type="text" id="delete-book-id" name="delete-book-id" required />
+            
+            <button type="submit">Delete Book</button>
+        </form>
+    </div>
+
+    <div class="column issue-form">
+        <h2>Book Issue</h2>
+        <form id="issueBookForm" onsubmit="issueBook(event)">
+            <label for="issue-book-id">Book ID:</label>
+            <input type="text" id="issue-book-id" name="issue-book-id" required onblur="populateBookDetails()" />
+
+            <label for="issue-book-title">Book Title:</label>
+            <input type="text" id="issue-book-title" name="issue-book-title" readonly />
+
+            <label for="issue-book-author">Author:</label>
+            <input type="text" id="issue-book-author" name="issue-book-author" readonly />
+
+            <label for="issue-date">Issue Date:</label>
+            <input type="date" id="issue-date" name="issue-date" required />
+
+            <label for="return-date">Return Date:</label>
+            <input type="date" id="return-date" name="return-date" required />
+
+            <label for="remarks">Remarks:</label>
+            <textarea id="remarks" name="remarks"></textarea>
+
+            <button type="submit">Issue Book</button>
+        </form>
+    </div>
+
+</div>
+
+<div id="message"></div>
+
+<script>
+    // Sample JavaScript functions for handling book operations
+
+    const bookList = [];
+
+    function searchBooks() {
+        const query = document.getElementById('search-book').value.toLowerCase();
+        const filteredBooks = bookList.filter(book => book.title.toLowerCase().includes(query) || book.author.toLowerCase().includes(query));
+        displayBooks(filteredBooks);
+    }
+
+    function displayBooks(books) {
+        const bookListElement = document.getElementById('book-list');
+        bookListElement.innerHTML = '';
+        books.forEach((book, index) => {
+            const li = document.createElement('li');
+            li.textContent = `ID: ${index + 1}, Title: ${book.title}, Author: ${book.author}`;
+            bookListElement.appendChild(li);
+        });
+    }
+
+    function addBook(event) {
+        event.preventDefault();
+        const title = document.getElementById('new-book-title').value;
+        const author = document.getElementById('new-book-author').value;
+        bookList.push({ title, author });
+        document.getElementById('addBookForm').reset();
+        displayBooks(bookList);
+        document.getElementById('message').textContent = 'Book added successfully!';
+    }
+
+    function deleteBook(event) {
+        event.preventDefault();
+        const id = parseInt(document.getElementById('delete-book-id').value);
+        if (id > 0 && id <= bookList.length) {
+            bookList.splice(id - 1, 1);
+            document.getElementById('deleteBookForm').reset();
+            displayBooks(bookList);
+            document.getElementById('message').textContent = 'Book deleted successfully!';
+        } else {
+            document.getElementById('message').textContent = 'Invalid Book ID!';
+        }
+    }
+
+    function issueBook(event) {
+        event.preventDefault();
+        const id = parseInt(document.getElementById('issue-book-id').value);
+        const title = document.getElementById('issue-book-title').value;
+        const author = document.getElementById('issue-book-author').value;
+        const issueDate = document.getElementById('issue-date').value;
+        const returnDate = document.getElementById('return-date').value;
+        const remarks = document.getElementById('remarks').value;
+
+        if (id > 0 && id <= bookList.length) {
+            // Logic to issue the book (could be an API call)
+            document.getElementById('issueBookForm').reset();
+            document.getElementById('message').textContent = `Book "${title}" issued successfully!`;
+        } else {
+            document.getElementById('message').textContent = 'Invalid Book ID!';
+        }
+    }
+
+    function populateBookDetails() {
+        const id = parseInt(document.getElementById('issue-book-id').value);
+        if (id > 0 && id <= bookList.length) {
+            const book = bookList[id - 1];
+            document.getElementById('issue-book-title').value = book.title;
+            document.getElementById('issue-book-author').value = book.author;
+        } else {
+            document.getElementById('issue-book-title').value = '';
+            document.getElementById('issue-book-author').value = '';
+        }
+    }
+</script>
+
+</body>
+</html>

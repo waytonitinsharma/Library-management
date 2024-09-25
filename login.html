@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="css/login.css" />
+    <style>
+        .toggle-password {
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 40px; /* Adjust based on your layout */
+        }
+        .input-container {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <h1>Notes Library</h1>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form class="login-form" onsubmit="submitForm(event)">
+            <h1>Login</h1>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" required />
+            <label for="password">Password:</label>
+            <div class="input-container">
+                <input type="password" id="password" name="password" required />
+                <span class="toggle-password" onclick="togglePasswordVisibility()">
+                    👁️
+                </span>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <a href="#" onclick="showResetForm()">Forgot password?</a>
+    </div>
+
+    <!-- Password Reset Form -->
+    <div class="container" id="reset-password-form" style="display: none;">
+        <form class="reset-form" onsubmit="resetPassword(event)">
+            <h1>Reset Password</h1>
+            <label for="reset-email">Email:</label>
+            <input type="text" id="reset-email" name="reset-email" required />
+            <label for="new-password">New Password:</label>
+            <input type="password" id="new-password" name="new-password" required />
+            <button type="submit">Reset Password</button>
+        </form>
+    </div>
+
+    <p class="copyright">&copy; Copyright reserved 2023 Notes App</p>
+    <h3>This Website Design by Nitin Sharma</h3>
+
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await fetch("http://localhost:3000/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert("Login successful!");
+                    localStorage.setItem("userDetails", JSON.stringify(data.user));
+                    window.location.href = "librarySystem.html"; // Redirect to library system page
+                } else {
+                    const result = await response.json();
+                    alert(result.message || "Invalid email or password.");
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                alert("An unexpected error occurred. Please try again later.");
+            }
+        }
+
+        function showResetForm() {
+            const resetForm = document.getElementById("reset-password-form");
+            resetForm.style.display = resetForm.style.display === "none" ? "block" : "none";
+        }
+
+        async function resetPassword(event) {
+            event.preventDefault();
+            const resetEmail = document.getElementById("reset-email").value;
+            const newPassword = document.getElementById("new-password").value;
+
+            try {
+                const response = await fetch("http://localhost:3000/reset-password", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ resetEmail, newPassword }),
+                });
+
+                if (response.ok) {
+                    alert("Password reset successful! You can now log in.");
+                    showResetForm(); // Hide reset form after success
+                } else {
+                    const result = await response.json();
+                    alert(result.message || "Failed to reset password.");
+                }
+            } catch (error) {
+                console.error("Error during password reset:", error);
+                alert("An unexpected error occurred. Please try again later.");
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("password");
+            const type = passwordInput.type === "password" ? "text" : "password";
+            passwordInput.type = type;
+
+            // Change the eye icon based on visibility
+            const eyeIcon = document.querySelector('.toggle-password');
+            eyeIcon.textContent = type === "password" ? '👁️' : '🙈'; // Change icon on toggle
+        }
+    </script>
+</body>
+</html>
